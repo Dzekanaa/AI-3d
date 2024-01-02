@@ -4,16 +4,42 @@ import { useSnapshot } from "valtio";
 
 import state from "../store";
 import config from "../config/config";
-import { download } from "../assets";
+import { download, logoShirt, stylishShirt } from "../assets";
 import { downloadCanvasToImage, reader } from "../config/helpers";
 import { EditorTabs, FilterTabs, DecalTypes } from "../config/constants";
 import { fadeAnimation, slideAnimation } from "../config/motion";
 import Tab from "../components/Tab";
 import { fade } from "maath/dist/declarations/src/misc";
 import CustomButton from "../components/CustomButton";
+import ColorPicker from "../components/ColorPicker";
+import FilePicker from "../components/FilePicker";
+import AIPicker from "../components/AIPicker";
 
 const Customizer = () => {
   const snap = useSnapshot(state);
+  const [file, setFile] = useState("");
+
+  const [prompt, setPrompt] = useState("");
+  const [generatingImg, setgeneratingImg] = useState(false);
+
+  const [activeEditorTab, setactiveEditorTab] = useState("");
+  const [activeFilterTab, setactiveFilterTab] = useState({
+    logoShirt: true,
+    stylishShirt: false,
+  });
+
+  const generateTabContent = () => {
+    switch (activeEditorTab) {
+      case "colorpicker":
+        return <ColorPicker />;
+      case "filepicker":
+        return <FilePicker />;
+      case "aipicker":
+        return <AIPicker />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -27,8 +53,16 @@ const Customizer = () => {
             <div className="flex items-center min-h-screen">
               <div className="editortabs-container tabs">
                 {EditorTabs.map((tab) => (
-                  <Tab key={tab.name} tab={tab} handleClick={() => {}} />
+                  <Tab
+                    key={tab.name}
+                    isActiveTab=""
+                    isFiltered
+                    tab={tab}
+                    handleClick={() => setactiveEditorTab(tab.name)}
+                  />
                 ))}
+
+                {generateTabContent()}
               </div>
             </div>
           </motion.div>
@@ -50,7 +84,13 @@ const Customizer = () => {
             {...slideAnimation("up")}
           >
             {FilterTabs.map((tab) => (
-              <Tab key={tab.name} tab={tab} handleClick={() => {}} />
+              <Tab
+                key={tab.name}
+                isActiveTab=""
+                isFiltered
+                tab={tab}
+                handleClick={() => {}}
+              />
             ))}
           </motion.div>
         </>
