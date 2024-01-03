@@ -14,6 +14,7 @@ import CustomButton from "../components/CustomButton";
 import ColorPicker from "../components/ColorPicker";
 import FilePicker from "../components/FilePicker";
 import AIPicker from "../components/AIPicker";
+import { stringify } from "postcss";
 
 const Customizer = () => {
   const snap = useSnapshot(state);
@@ -33,12 +34,50 @@ const Customizer = () => {
       case "colorpicker":
         return <ColorPicker />;
       case "filepicker":
-        return <FilePicker />;
+        return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
       case "aipicker":
         return <AIPicker />;
       default:
         return null;
     }
+  };
+
+  const handleDecals = (type, result) => {
+    const DecalType = DecalTypes[type];
+
+    state[DecalType.stateProperty] = result;
+
+    if (!activeFilterTab[DecalType.filterTab]) {
+      handleActiveFilterTab(DecalType.filterTab);
+    }
+  };
+
+  const handleActiveFilterTab = (tabName: string) => {
+    switch (tabName) {
+      case "logoShirt":
+        state.isLogoTexture = !activeFilterTab[tabName];
+        break;
+      case "stylishShirt":
+        state.isFullTexture = !activeFilterTab[tabName];
+        break;
+      default:
+        state.isLogoTexture = true;
+        state.isFullTexture = false;
+    }
+
+    setactiveFilterTab((prevState) => {
+      return {
+        ...prevState,
+        [tabName]: !prevState[tabName],
+      };
+    });
+  };
+
+  const readFile = (type) => {
+    reader(file).then((result) => {
+      handleDecals(type, result);
+      setactiveEditorTab("");
+    });
   };
 
   return (
@@ -86,10 +125,12 @@ const Customizer = () => {
             {FilterTabs.map((tab) => (
               <Tab
                 key={tab.name}
-                isActiveTab=""
+                isActiveTab={activeFilterTab[tab.name]}
                 isFiltered
                 tab={tab}
-                handleClick={() => {}}
+                handleClick={() => {
+                  handleActiveFilterTab(tab.name);
+                }}
               />
             ))}
           </motion.div>
