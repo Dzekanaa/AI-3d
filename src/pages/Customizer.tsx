@@ -36,9 +36,41 @@ const Customizer = () => {
       case "filepicker":
         return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
       case "aipicker":
-        return <AIPicker />;
+        return (
+          <AIPicker
+            prompt={prompt}
+            setPrompt={setPrompt}
+            generatingImg={generatingImg}
+            handleSubmit={handleSubmit}
+          />
+        );
       default:
         return null;
+    }
+  };
+
+  const handleSubmit = async (type) => {
+    if (!prompt) return alert("Please enter the prompt");
+
+    try {
+      setgeneratingImg(true);
+      const response = await fetch("http://localhost:5000/api/v1/dalle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt,
+        }),
+      });
+      const data = await response.json();
+
+      handleDecals(type, `data:image/png;base64,${data.photo}`);
+    } catch (error) {
+      alert(error);
+    } finally {
+      setgeneratingImg(false);
+      setactiveEditorTab("");
     }
   };
 

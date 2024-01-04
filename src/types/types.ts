@@ -2,7 +2,7 @@ export interface CustomButtonProps {
     type: string,
     title: string,
     styles: string,
-    handleClick: () => void;
+    handleClick?: () => void;
 }
 
 export interface TabProps {
